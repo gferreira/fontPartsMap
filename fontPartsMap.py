@@ -124,6 +124,8 @@ class FontPartsMap(object):
     fontSize1 = 18
     fontSize2 = 32
 
+    textDraw = True
+
     linesStrokeColor = 0.6,
     linesStrokeWidth = 4
     linesDash = 3, 7
@@ -131,6 +133,7 @@ class FontPartsMap(object):
     circlesStrokeColor = 0,
     circlesStrokeWidth = 3
 
+    circlesShadowDraw     = True
     circlesShadowDistance = 10, 0
     circlesShadowBlur     = 15
     circlesShadowColor    = 0, 0.25
@@ -144,6 +147,10 @@ class FontPartsMap(object):
     }
 
     positions = {}
+
+    def setAttributes(self, attrsDict):
+        for key, value in attrsDict.items():
+            setattr(self, key, value)
 
     def makePositions(self, pos):
         x, y = pos
@@ -186,7 +193,10 @@ class FontPartsMap(object):
 
     def drawLines(self):
         save()
-        stroke(*self.linesStrokeColor)
+        if self.linesStrokeColor:
+            stroke(*self.linesStrokeColor)
+        else:
+            stroke(None)
         strokeWidth(self.linesStrokeWidth)
         lineDash(self.linesDash)
         lineCap('round')
@@ -198,7 +208,8 @@ class FontPartsMap(object):
         save()
         stroke(*self.circlesStrokeColor)
         strokeWidth(self.circlesStrokeWidth)
-        shadow(self.circlesShadowDistance, blur=self.circlesShadowBlur, color=self.circlesShadowColor)
+        if self.circlesShadowDraw:
+            shadow(self.circlesShadowDistance, blur=self.circlesShadowBlur, color=self.circlesShadowColor)
         for obj, pos in self.positions.items():
             if obj not in ['font', 'glyph']:
                 r = self.radius1
@@ -211,22 +222,25 @@ class FontPartsMap(object):
         restore()
 
     def drawCaptions(self):
-        fill(1)
-        shadow((2, -2), blur=5, color=(0, 0.3))
-        font(self.font)
-        for obj in self.positions.keys():
-            x, y = self.positions[obj]
-            if obj not in ['font', 'glyph']:
-                r = self.radius1
-                fontSize(self.fontSize1)
-                h = r - self.fontSize1 * -0.6
-            else:
-                r = self.radius2
-                fontSize(self.fontSize2)
-                h = r - self.fontSize2 * -0.65
-            if len(obj.split('_')) > 1:
-                obj = obj.split('_')[-1]
-            textBox(obj, (x - r, y - r, r * 2, h), align='center')
+        if self.textDraw:
+            save()
+            fill(1)
+            shadow((2, -2), blur=5, color=(0, 0.3))
+            font(self.font)
+            for obj in self.positions.keys():
+                x, y = self.positions[obj]
+                if obj not in ['font', 'glyph']:
+                    r = self.radius1
+                    fontSize(self.fontSize1)
+                    h = r - self.fontSize1 * -0.6
+                else:
+                    r = self.radius2
+                    fontSize(self.fontSize2)
+                    h = r - self.fontSize2 * -0.65
+                if len(obj.split('_')) > 1:
+                    obj = obj.split('_')[-1]
+                textBox(obj, (x - r, y - r, r * 2, h), align='center')
+            restore()
 
     def draw(self, pos):
         self.makePositions(pos)
@@ -287,3 +301,4 @@ class FontPartsMapUI(object):
         rect(0, 0, width(), height())
 
         M.draw((x, y))
+

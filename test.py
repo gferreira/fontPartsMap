@@ -5,29 +5,67 @@ reload(fontPartsMap)
 
 from fontPartsMap import FontPartsMap
 
+#------------------
+# big vertical map
+#------------------
+
+attrsDict = {
+    'radius1'            : 55,
+    'radius2'            : 87,
+    'length1'            : 180,
+    'length2'            : 180,
+    'length3'            : 150,
+    'angle1'             : 50,
+    'angleStart1'        : 0,
+    'angle2'             : -45,
+    'angleStart2'        : 30,
+    'angle3'             : -55,
+    'angleStart3'        : -165,
+    'randomness'         : 1,
+    'linesStrokeColor'   : (0.6,),
+    'linesStrokeWidth'   : 5,
+    'linesDash'          : (1, 8),
+    'circlesStrokeColor' : (0.8,),
+    'circlesStrokeWidth' : 0,
+}
+
 M = FontPartsMap()
+M.setAttributes(attrsDict)
+M.draw((450, 700))
 
-M.radius1 = 55
-M.radius2 = 87
+#----------------------
+# small horizontal map
+#----------------------
 
-M.length1 = 180
-M.length2 = 180
-M.length3 = 150
+attrsDict2 = {
+    'radius1'            : 55,
+    'radius2'            : 87,
+    'length1'            : 160,
+    'length2'            : 160,
+    'length3'            : 140,
+    'angle1'             : 50,
+    'angleStart1'        : 0,
+    'angle2'             : -45,
+    'angleStart2'        : 30,
+    'angle3'             : -55,
+    'angleStart3'        : -165,
+    'randomness'         : 0,
+    'linesStrokeColor'   : None,
+    'linesStrokeWidth'   : 5,
+    'linesDash'          : None,
+    'circlesStrokeColor' : (0.8,),
+    'circlesStrokeWidth' : 0,
+    'circlesShadowDraw'  : False,
+    'textDraw'           : False,
+}
 
-M.angle1, M.angleStart1 = 50, 0
-M.angle2, M.angleStart2 = -45, 30
-M.angle3, M.angleStart3 = -55, -165
+translate(818, 898)
+rotate(90)
+scale(0.2)
+M2 = FontPartsMap()
+M2.setAttributes(attrsDict2)
+M2.draw((0, 0))
 
-M.randomness = 0
 
-M.linesStrokeColor = 0.6,
-M.linesStrokeWidth = 5
-M.linesDash = 1, 8
-M.circlesStrokeColor = 0.8,
-M.circlesStrokeWidth = 0
 
-M.landscape = False
 
-fill(1)
-rect(0, 0, width(), height())
-M.draw((500, 700))
