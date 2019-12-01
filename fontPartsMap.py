@@ -2,6 +2,7 @@
 
 import os
 import sys
+import math
 
 from drawBot import *
 from grapefruit import Color
@@ -34,16 +35,18 @@ class FontPartsColorScheme(object):
         ['font', 'layer', 'glyph'],
     ]
 
+    baseColors = {
+        # use original RoboFab colors for Font and Glyph objects
+        'font'  : Color.from_hsl(80, 0.50, 0.49),
+        'glyph' : Color.from_hsl(38, 0.91, 0.69),
+    }
+
     def __init__(self):
         self.makeColors()
 
     def makeColors(self):
 
-        colors = {
-            # use original RoboFab colors for Font and Glyph objects
-            'font'  : Color.from_hsl(80, 0.50, 0.49),
-            'glyph' : Color.from_hsl(38, 0.91, 0.69),
-        }
+        colors = self.baseColors.copy()
 
         # color set 1: Font sub-objects
         for i, obj in enumerate(self.colorSets[0][1:]):
@@ -138,6 +141,9 @@ class FontPartsMap(object):
     circlesShadowBlur     = 15
     circlesShadowColor    = 0, 0.25
 
+    dimColor = 0.5,
+    dimObjects = []
+
     randomness = 0
 
     tree = {
@@ -164,24 +170,26 @@ class FontPartsMap(object):
             self.positions[obj] = x_, y_
 
         # layer
-        xLayer = xFont
-        yLayer = yFont - self.length2
+        xLayer = xFont + cos(radians(self.angleStart0)) * self.length2
+        yLayer = yFont + sin(radians(self.angleStart0)) * self.length2
+
         self.positions['layer'] = xLayer, yLayer
 
         # glyph etc.
-        xGlyph = xLayer
-        yGlyph = yLayer - self.length2
+        xGlyph = xLayer + cos(radians(self.angleStart4)) * self.length2
+        yGlyph = yLayer + sin(radians(self.angleStart4)) * self.length2
+
         self.positions['glyph'] = xGlyph, yGlyph
         for i, obj in enumerate(self.tree['glyph']):
-            x_ = xGlyph + cos(radians(self.angleStart2 + self.angle2 * i)) * self.length2
-            y_ = yGlyph + sin(radians(self.angleStart2 + self.angle2 * i)) * self.length2
+            x_ = xGlyph + cos(radians(self.angleStart2 + self.angle2 * i)) * self.length1
+            y_ = yGlyph + sin(radians(self.angleStart2 + self.angle2 * i)) * self.length1                
             self.positions[obj] = x_, y_
 
         # point etc.
         xContour, yContour = self.positions['contour']
         for i, obj in enumerate(self.tree['contour']):
-            x_ = xContour + cos(radians(self.angleStart3 + self.angle3 * i)) * self.length3
-            y_ = yContour + sin(radians(self.angleStart3 + self.angle3 * i)) * self.length3
+            x_ = xContour + cos(radians(self.angleStart3 + self.angle3 * i)) * self.length1
+            y_ = yContour + sin(radians(self.angleStart3 + self.angle3 * i)) * self.length1
             self.positions[obj] = x_, y_
 
         # randomize
@@ -192,33 +200,75 @@ class FontPartsMap(object):
                 self.positions[obj] = x, y
 
     def drawLines(self):
+
         save()
-        if self.linesStrokeColor:
-            stroke(*self.linesStrokeColor)
-        else:
-            stroke(None)
-        strokeWidth(self.linesStrokeWidth)
-        lineDash(self.linesDash)
-        lineCap('round')
+
         for obj1, obj2 in self.connections:
-            line(self.positions[obj1], self.positions[obj2])
+
+            if self.linesGradient:
+
+                B = BezierPath()
+                B.moveTo(self.positions[obj1])
+                B.lineTo(self.positions[obj2])
+                B2 = B.expandStroke(self.linesStrokeWidth)
+
+                r1 = self.radius1 if obj1 not in ['font', 'glyph'] else self.radius2
+                r2 = self.radius1 if obj2 not in ['font', 'glyph'] else self.radius2
+
+                dx = self.positions[obj2][0] - self.positions[obj1][0]
+                dy = self.positions[obj2][1] - self.positions[obj1][1]
+
+                aRadians = math.atan2(dy, dx)
+
+                x1 = self.positions[obj1][0] + r1 * cos(aRadians)
+                y1 = self.positions[obj1][1] + r1 * sin(aRadians)
+
+                x2 = self.positions[obj2][0] - r2 * cos(aRadians)
+                y2 = self.positions[obj2][1] - r2 * sin(aRadians)
+
+                c1 = self.colors[obj1] if not obj1 in self.dimObjects else self.dimColor  
+                c2 = self.colors[obj2] if not obj2 in self.dimObjects else self.dimColor 
+
+                linearGradient(
+                    (x1, y1), (x2, y2),
+                    [c1, c2],
+                    [0, 1])
+
+                drawPath(B2)
+
+            else:
+                lineDash(*self.linesDash)
+                stroke(*self.linesStrokeColor)
+                strokeWidth(self.linesStrokeWidth)
+                lineCap('round')
+                line(self.positions[obj1], self.positions[obj2])
+
         restore()
 
     def drawCircles(self):
         save()
-        stroke(*self.circlesStrokeColor)
-        strokeWidth(self.circlesStrokeWidth)
+
+        stroke(None)
+        # stroke(*self.circlesStrokeColor)
+        # strokeWidth(self.circlesStrokeWidth)
+
         if self.circlesShadowDraw:
-            shadow(self.circlesShadowDistance, blur=self.circlesShadowBlur, color=self.circlesShadowColor)
+            shadow(self.circlesShadowDistance,
+                blur=self.circlesShadowBlur,
+                color=self.circlesShadowColor)
+
         for obj, pos in self.positions.items():
             if obj not in ['font', 'glyph']:
                 r = self.radius1
             else:
                 r = self.radius2
-            c = self.colors[obj]
-            fill(*c)
+
             x, y = pos
+            c = self.colors[obj] if obj not in self.dimObjects else self.dimColor
+
+            fill(*c)
             oval(x - r, y - r, r*2, r*2)
+
         restore()
 
     def drawCaptions(self):
@@ -244,7 +294,8 @@ class FontPartsMap(object):
 
     def draw(self, pos):
         self.makePositions(pos)
-        self.drawLines()
+        if self.linesDraw:
+            self.drawLines()
         self.drawCircles()
         self.drawCaptions()
 

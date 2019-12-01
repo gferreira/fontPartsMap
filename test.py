@@ -5,67 +5,41 @@ reload(fontPartsMap)
 
 from fontPartsMap import FontPartsMap
 
-#------------------
-# big vertical map
-#------------------
+size(1000, 700)
 
 attrsDict = {
-    'radius1'            : 55,
-    'radius2'            : 87,
+
+    'radius1'            : 60,
+    'radius2'            : 70,
+
     'length1'            : 180,
     'length2'            : 180,
-    'length3'            : 150,
+    'length3'            : 170,
+
     'angle1'             : 50,
-    'angleStart1'        : 0,
-    'angle2'             : -45,
-    'angleStart2'        : 30,
-    'angle3'             : -55,
-    'angleStart3'        : -165,
-    'randomness'         : 1,
+    'angle2'             : -50,
+    'angle3'             : 50,
+
+    'angleStart0'        : 5,
+    'angleStart1'        : 63,
+    'angleStart2'        : 124,
+    'angleStart3'        : 186,
+    'angleStart4'        : 0,
+
+    'randomness'         : 0,
+
     'linesStrokeColor'   : (0.6,),
-    'linesStrokeWidth'   : 5,
-    'linesDash'          : (1, 8),
-    'circlesStrokeColor' : (0.8,),
-    'circlesStrokeWidth' : 0,
+    'linesStrokeWidth'   : 13,
+    'linesDash'          : (1, 5),
+    'linesDraw'          : True,
+    'linesGradient'      : True,
+
+    # 'circlesStrokeColor' : (0.8,),
+    # 'circlesStrokeWidth' : 0,
+    'circlesShadowDraw'  : False, 
+
 }
 
 M = FontPartsMap()
 M.setAttributes(attrsDict)
-M.draw((450, 700))
-
-#----------------------
-# small horizontal map
-#----------------------
-
-attrsDict2 = {
-    'radius1'            : 55,
-    'radius2'            : 87,
-    'length1'            : 160,
-    'length2'            : 160,
-    'length3'            : 140,
-    'angle1'             : 50,
-    'angleStart1'        : 0,
-    'angle2'             : -45,
-    'angleStart2'        : 30,
-    'angle3'             : -55,
-    'angleStart3'        : -165,
-    'randomness'         : 0,
-    'linesStrokeColor'   : None,
-    'linesStrokeWidth'   : 5,
-    'linesDash'          : None,
-    'circlesStrokeColor' : (0.8,),
-    'circlesStrokeWidth' : 0,
-    'circlesShadowDraw'  : False,
-    'textDraw'           : False,
-}
-
-translate(818, 898)
-rotate(90)
-scale(0.2)
-M2 = FontPartsMap()
-M2.setAttributes(attrsDict2)
-M2.draw((0, 0))
-
-
-
-
+M.draw((270, 400))

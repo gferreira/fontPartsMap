@@ -1,10 +1,22 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version='1.0' encoding='UTF-8'?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
-<array>
-	<array>
-		<string>foreground</string>
-		<string>glyphs</string>
-	</array>
-</array>
+  <array>
+    <array>
+      <string>regular</string>
+      <string>glyphs</string>
+    </array>
+    <array>
+      <string>bold</string>
+      <string>glyphs.bold</string>
+    </array>
+    <array>
+      <string>551</string>
+      <string>glyphs.551</string>
+    </array>
+    <array>
+      <string>Mechanica 95 955</string>
+      <string>glyphs.M_echanica 95 955</string>
+    </array>
+  </array>
 </plist>

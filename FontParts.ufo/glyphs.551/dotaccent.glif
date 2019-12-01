@@ -1,0 +1,20 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<glyph name="dotaccent" format="2">
+  <advance width="219"/>
+  <anchor x="110" y="505" name="_top"/>
+  <anchor x="109" y="-20" name="_bottom"/>
+  <outline>
+    <contour>
+      <point x="149" y="537" type="line"/>
+      <point x="149" y="615" type="line"/>
+      <point x="72" y="615" type="line"/>
+      <point x="72" y="537" type="line"/>
+    </contour>
+  </outline>
+  <lib>
+    <dict>
+      <key>public.markColor</key>
+      <string>1,0,0.42857,0.5</string>
+    </dict>
+  </lib>
+</glyph>

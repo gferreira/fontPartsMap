@@ -1,22 +1,54 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version='1.0' encoding='UTF-8'?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
-<dict>
-	<key>F</key>
-	<string>F_.glif</string>
-	<key>P</key>
-	<string>P_.glif</string>
-	<key>a</key>
-	<string>a.glif</string>
-	<key>n</key>
-	<string>n.glif</string>
-	<key>o</key>
-	<string>o.glif</string>
-	<key>r</key>
-	<string>r.glif</string>
-	<key>s</key>
-	<string>s.glif</string>
-	<key>t</key>
-	<string>t.glif</string>
-</dict>
+  <dict>
+    <key>F</key>
+    <string>F_.glif</string>
+    <key>P</key>
+    <string>P_.glif</string>
+    <key>a</key>
+    <string>a.glif</string>
+    <key>acute</key>
+    <string>acute.glif</string>
+    <key>acute_i</key>
+    <string>acute_i.glif</string>
+    <key>breve</key>
+    <string>breve.glif</string>
+    <key>caron</key>
+    <string>caron.glif</string>
+    <key>cedilla</key>
+    <string>cedilla.glif</string>
+    <key>circumflex</key>
+    <string>circumflex.glif</string>
+    <key>commaaccent</key>
+    <string>commaaccent.glif</string>
+    <key>dblgrave</key>
+    <string>dblgrave.glif</string>
+    <key>dieresis</key>
+    <string>dieresis.glif</string>
+    <key>dotaccent</key>
+    <string>dotaccent.glif</string>
+    <key>grave</key>
+    <string>grave.glif</string>
+    <key>hungarumlaut</key>
+    <string>hungarumlaut.glif</string>
+    <key>macron</key>
+    <string>macron.glif</string>
+    <key>n</key>
+    <string>n.glif</string>
+    <key>o</key>
+    <string>o.glif</string>
+    <key>ogonek</key>
+    <string>ogonek.glif</string>
+    <key>r</key>
+    <string>r.glif</string>
+    <key>ring</key>
+    <string>ring.glif</string>
+    <key>s</key>
+    <string>s.glif</string>
+    <key>t</key>
+    <string>t.glif</string>
+    <key>tilde</key>
+    <string>tilde.glif</string>
+  </dict>
 </plist>
