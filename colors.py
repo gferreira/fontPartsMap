@@ -1,8 +1,3 @@
-from importlib import reload
-import fontPartsMap
-reload(fontPartsMap)
-
-from grapefruit import Color
 from fontPartsMap import FontPartsColorScheme
 
 size('A4Landscape')

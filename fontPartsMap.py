@@ -1,9 +1,11 @@
-# fontParts object map
+'''
+FontParts Object Map
+based on the classic [RoboFab Object Map](http://robofab.org/objects/model.html)
+'''
 
 import os
 import sys
 import math
-
 from drawBot import *
 from grapefruit import Color
 from collections import OrderedDict
@@ -11,6 +13,7 @@ from collections import OrderedDict
 FontPartsConnections = [
     ('font',    'info'),
     ('font',    'font lib'),
+    ('font',    'groups'),
     ('font',    'kerning'),
     ('font',    'features'),
     ('font',    'layer'),
@@ -26,17 +29,18 @@ FontPartsConnections = [
     ('contour', 'segment')
 ]
 
-class FontPartsColorScheme(object):
+class FontPartsColorScheme:
 
     colorSets = [
-        ['font', 'font lib', 'info', 'kerning', 'features'],
+        ['font', 'font lib', 'info', 'groups', 'kerning', 'features'],
         ['glyph', 'glyph lib', 'anchor', 'component', 'image', 'guideline', 'contour'],
         ['contour', 'point', 'bPoint', 'segment'],
         ['font', 'layer', 'glyph'],
     ]
 
     baseColors = {
-        # use original RoboFab colors for Font and Glyph objects
+        # use the original RoboFab colors for Font and Glyph objects
+        # calculate colors for all other objects from those two
         'font'  : Color.from_hsl(80, 0.50, 0.49),
         'glyph' : Color.from_hsl(38, 0.91, 0.69),
     }
@@ -45,12 +49,16 @@ class FontPartsColorScheme(object):
         self.makeColors()
 
     def makeColors(self):
+        '''
+        Calculate colors for all objects.
+        Colors are stored in a dict as `grapefruit.Color` objects.
 
+        '''
         colors = self.baseColors.copy()
 
         # color set 1: Font sub-objects
         for i, obj in enumerate(self.colorSets[0][1:]):
-            color = colors['font'].with_hue(colors['font'].hsl[0] + (i+1) * 25)
+            color = colors['font'].with_hue(colors['font'].hsl[0] + (i+1) * 23)
             colors[obj] = color
 
         # color set 2: Glyph sub-objects
@@ -102,52 +110,73 @@ class FontPartsColorScheme(object):
             translate(0, (h + padding))
         restore()
 
-class FontPartsMap(object):
+class FontPartsMapMaker:
 
-    colors = FontPartsColorScheme().colorsRGB
+    colors = FontPartsColorScheme()
+    colorMode = ['RGB', 'CMYK'][0]
+
     connections = FontPartsConnections
 
+    # radius for sub-objects
     radius1 = 50
+
+    # radius for main objects: Font & Glyph
     radius2 = 70
 
+    # distance between Font/Glyph and its sub-objects
     length1 = 160
-    length2 = 200
-    length3 = 170
 
+    # distance between Font/Glyph and Layer
+    length2 = 200
+
+    # no longer used?
+    length3 = 170 
+
+    # angle between Font sub-objects
     angle1  = 180 / 3
     angleStart1 = 0
 
+    # angle between Glyph sub-objects
     angle2  = 180 / 4
     angleStart2 = 0
 
+    # angle between Contour sub-objects
     angle3  = 180 / 3.5
     angleStart3 = 0
 
+    # font settings
     font = 'RoboType-Bold'
-    fontSize1 = 18
-    fontSize2 = 32
+    fontSize1 = 18 # sub-objects
+    fontSize2 = 32 # main objects: Font/Glyph
 
-    textDraw = True
+    # toggle object names
+    textDraw  = True
+    textColor = 1,
 
+    # connection lines
     linesStrokeColor = 0.6,
     linesStrokeWidth = 4
     linesDash = 3, 7
 
-    circlesStrokeColor = 0,
-    circlesStrokeWidth = 3
+    # deprecated
+    # circlesStrokeColor = 0,
+    # circlesStrokeWidth = 3
 
+    # shadow settings
     circlesShadowDraw     = True
     circlesShadowDistance = 10, 0
     circlesShadowBlur     = 15
     circlesShadowColor    = 0, 0.25
 
+    # settings for dimmed objects
     dimColor = 0.5,
     dimObjects = []
 
+    # randomize positions
     randomness = 0
 
     tree = {
-        'font'    : ['font lib', 'info', 'kerning', 'features'],
+        'font'    : ['font lib', 'info', 'groups', 'kerning', 'features'],
         'glyph'   : ['glyph lib', 'anchor', 'component', 'image', 'guideline', 'contour'],
         'contour' : ['point', 'bPoint', 'segment'],
     }
@@ -155,10 +184,18 @@ class FontPartsMap(object):
     positions = {}
 
     def setAttributes(self, attrsDict):
+        '''
+        Set map attributes from a given dictionary.
+
+        '''
         for key, value in attrsDict.items():
             setattr(self, key, value)
 
     def makePositions(self, pos):
+        '''
+        Calculate object positions and store them in a dict.
+
+        '''
         x, y = pos
 
         # font etc.
@@ -181,15 +218,16 @@ class FontPartsMap(object):
 
         self.positions['glyph'] = xGlyph, yGlyph
         for i, obj in enumerate(self.tree['glyph']):
-            x_ = xGlyph + cos(radians(self.angleStart2 + self.angle2 * i)) * self.length1
-            y_ = yGlyph + sin(radians(self.angleStart2 + self.angle2 * i)) * self.length1                
+            x_ = xGlyph + cos(radians(self.angleStart2 - self.angle2 * i)) * self.length1
+            y_ = yGlyph + sin(radians(self.angleStart2 - self.angle2 * i)) * self.length1
             self.positions[obj] = x_, y_
 
         # point etc.
         xContour, yContour = self.positions['contour']
+        length = self.length1 - (self.radius2 - self.radius1)
         for i, obj in enumerate(self.tree['contour']):
-            x_ = xContour + cos(radians(self.angleStart3 + self.angle3 * i)) * self.length1
-            y_ = yContour + sin(radians(self.angleStart3 + self.angle3 * i)) * self.length1
+            x_ = xContour + cos(radians(self.angleStart3 + self.angle3 * i)) * length
+            y_ = yContour + sin(radians(self.angleStart3 + self.angle3 * i)) * length
             self.positions[obj] = x_, y_
 
         # randomize
@@ -200,6 +238,12 @@ class FontPartsMap(object):
                 self.positions[obj] = x, y
 
     def drawLines(self):
+        '''
+        Draw lines connecting objects to sub-objects.
+
+        '''
+        if not self.linesDraw:
+            return
 
         save()
 
@@ -226,8 +270,12 @@ class FontPartsMap(object):
                 x2 = self.positions[obj2][0] - r2 * cos(aRadians)
                 y2 = self.positions[obj2][1] - r2 * sin(aRadians)
 
-                c1 = self.colors[obj1] if not obj1 in self.dimObjects else self.dimColor  
-                c2 = self.colors[obj2] if not obj2 in self.dimObjects else self.dimColor 
+                if self.colorMode == 'CMYK':
+                    c1 = self.colors.colorsCMYK[obj1] if not obj1 in self.dimObjects else self.dimColor
+                    c2 = self.colors.colorsCMYK[obj2] if not obj2 in self.dimObjects else self.dimColor
+                else:
+                    c1 = self.colors.colorsRGB[obj1] if not obj1 in self.dimObjects else self.dimColor
+                    c2 = self.colors.colorsRGB[obj2] if not obj2 in self.dimObjects else self.dimColor
 
                 linearGradient(
                     (x1, y1), (x2, y2),
@@ -246,25 +294,24 @@ class FontPartsMap(object):
         restore()
 
     def drawCircles(self):
-        save()
+        '''
+        Draw a circle representing each object.
 
+        '''
+        save()
         stroke(None)
-        # stroke(*self.circlesStrokeColor)
-        # strokeWidth(self.circlesStrokeWidth)
 
         if self.circlesShadowDraw:
-            shadow(self.circlesShadowDistance,
-                blur=self.circlesShadowBlur,
-                color=self.circlesShadowColor)
+            shadow(self.circlesShadowDistance, blur=self.circlesShadowBlur, color=self.circlesShadowColor)
 
         for obj, pos in self.positions.items():
-            if obj not in ['font', 'glyph']:
-                r = self.radius1
-            else:
-                r = self.radius2
-
             x, y = pos
-            c = self.colors[obj] if obj not in self.dimObjects else self.dimColor
+            r = self.radius1 if obj not in ['font', 'glyph'] else self.radius2
+
+            if self.colorMode == 'CMYK':
+                c = self.colors.colorsCMYK[obj] if obj not in self.dimObjects else self.dimColor
+            else:
+                c = self.colors.colorsRGB[obj] if obj not in self.dimObjects else self.dimColor
 
             fill(*c)
             oval(x - r, y - r, r*2, r*2)
@@ -272,58 +319,73 @@ class FontPartsMap(object):
         restore()
 
     def drawCaptions(self):
-        if self.textDraw:
-            save()
-            fill(1)
-            shadow((2, -2), blur=5, color=(0, 0.3))
-            font(self.font)
-            for obj in self.positions.keys():
-                x, y = self.positions[obj]
-                if obj not in ['font', 'glyph']:
-                    r = self.radius1
-                    fontSize(self.fontSize1)
-                    h = r - self.fontSize1 * -0.6
-                else:
-                    r = self.radius2
-                    fontSize(self.fontSize2)
-                    h = r - self.fontSize2 * -0.65
-                if len(obj.split('_')) > 1:
-                    obj = obj.split('_')[-1]
-                textBox(obj, (x - r, y - r, r * 2, h), align='center')
-            restore()
+        '''
+        Draw the name of each object.
+        
+        '''
+        if not self.textDraw:
+            return
 
-    def draw(self, pos):
+        save()
+        fill(*self.textColor)
+        font(self.font)
+
+        for obj in self.positions.keys():
+            x, y = self.positions[obj]
+            c = self.colors.colors[obj].darker(0.4)
+            c = c.cmyk if self.colorMode == 'CMYK' else c.rgb
+            c += (0.7,)
+            shadow((2, -2), blur=5, color=c)
+
+            if obj not in ['font', 'glyph']:
+                r = self.radius1
+                fontSize(self.fontSize1)
+                h = r - self.fontSize1 * -0.6
+
+            else:
+                r = self.radius2
+                fontSize(self.fontSize2)
+                h = r - self.fontSize2 * -0.65
+
+            if len(obj.split('_')) > 1:
+                obj = obj.split('_')[-1]
+
+            textBox(obj, (x - r, y - r, r * 2, h), align='center')
+
+        restore()
+
+    def draw(self, pos=(0, 0)):
+        '''
+        Draw the FontParts object map at a given position.
+
+        The origin point is the center of the Font circle.
+
+        '''
         self.makePositions(pos)
-        if self.linesDraw:
-            self.drawLines()
+        self.drawLines()
         self.drawCircles()
         self.drawCaptions()
 
-class FontPartsMapUI(object):
+class FontPartsMapUI:
 
     def __init__(self):
 
         M = FontPartsMap()
 
-        a1 = 360 / len(M.tree['font'])
-        a2 = 360 / len(M.tree['glyph'])
-        a3 = 360 / len(M.tree['contour'])
-
         Variable([
-            dict(name="x",           ui="Slider", args=dict(value=500, minValue=0,  maxValue=1000)),
-            dict(name="y",           ui="Slider", args=dict(value=500, minValue=0,  maxValue=1000)),
-            dict(name="radius1",     ui="Slider", args=dict(value=60,  minValue=30, maxValue=100)),
-            dict(name="radius2",     ui="Slider", args=dict(value=120, minValue=50, maxValue=200)),
-            dict(name="length1",     ui="Slider", args=dict(value=190, minValue=80, maxValue=300)),
-            dict(name="length2",     ui="Slider", args=dict(value=210, minValue=80, maxValue=300)),
-            dict(name="length3",     ui="Slider", args=dict(value=190, minValue=80, maxValue=300)),
-            dict(name="angle1",      ui="Slider", args=dict(value=60,  minValue=0,  maxValue=a1)),
-            dict(name="angleStart1", ui="Slider", args=dict(value=-10, minValue=0,  maxValue=360)),
-            dict(name="angle2",      ui="Slider", args=dict(value=-50, minValue=0,  maxValue=a2)),
-            dict(name="angleStart2", ui="Slider", args=dict(value=40,  minValue=0,  maxValue=360)),
-            dict(name="angle3",      ui="Slider", args=dict(value=55,  minValue=0,  maxValue=a3)),
-            dict(name="angleStart3", ui="Slider", args=dict(value=85,  minValue=0,  maxValue=360)),
-            dict(name="randomness",  ui="Slider", args=dict(value=0,   minValue=0,  maxValue=20)),
+            dict(name="x",           ui="Slider", args=dict(value=300, minValue=0,  maxValue=1000)),
+            dict(name="y",           ui="Slider", args=dict(value=400, minValue=0,  maxValue=1000)),
+            dict(name="radius1",     ui="Slider", args=dict(value=M.radius1,     minValue=M.radius1*0.5,     maxValue=M.radius1*1.5)),
+            dict(name="radius2",     ui="Slider", args=dict(value=M.radius2,     minValue=M.radius2*0.5,     maxValue=M.radius2*1.5)),
+            dict(name="length1",     ui="Slider", args=dict(value=M.length1,     minValue=M.length1*0.5,     maxValue=M.length1*1.5)),
+            dict(name="length2",     ui="Slider", args=dict(value=M.length2,     minValue=M.length2*0.5,     maxValue=M.length2*1.5)),
+            dict(name="angle1",      ui="Slider", args=dict(value=M.angle1,      minValue=M.angle1*0.5,      maxValue=M.angle1*1.5)),
+            dict(name="angleStart1", ui="Slider", args=dict(value=M.angleStart1, minValue=M.angleStart1*0.5, maxValue=M.angleStart1*1.5)),
+            dict(name="angle2",      ui="Slider", args=dict(value=M.angle2,      minValue=M.angle2*0.5,      maxValue=M.angle2*1.5)),
+            dict(name="angleStart2", ui="Slider", args=dict(value=M.angleStart2, minValue=M.angleStart2*0.5, maxValue=M.angleStart2*1.5)),
+            dict(name="angle3",      ui="Slider", args=dict(value=M.angle3,      minValue=M.angle3*0.5,      maxValue=M.angle3*1.5)),
+            dict(name="angleStart3", ui="Slider", args=dict(value=M.angleStart3, minValue=M.angleStart3*0.5, maxValue=M.angleStart3*1.5)),
+            dict(name="randomness",  ui="Slider", args=dict(value=M.randomness,  minValue=0, maxValue=10)),
         ], globals())
 
         M.radius1 = radius1
@@ -342,14 +404,42 @@ class FontPartsMapUI(object):
 
         M.randomness = int(randomness)
 
-        M.linesDash = 2, 7
-        M.linesStrokeColor = 0.7,
-        M.linesStrokeWidth = 4
-        M.circlesStrokeColor = 0,
-        M.circlesStrokeWidth = 0
-
-        fill(1)
-        rect(0, 0, width(), height())
-
         M.draw((x, y))
+
+class FontPartsMap(FontPartsMapMaker):
+    
+    def __init__(self):
+        length = 180
+        angle  = 50
+        mapAttrs = {
+            'radius1'           : 60,
+            'radius2'           : 85,
+            'length1'           : length,
+            'length2'           : length,
+            'angle1'            : angle,
+            'angle2'            : angle,
+            'angle3'            : angle * 1.13,
+            'angleStart0'       : 0,
+            'angleStart1'       : 54,
+            'angleStart2'       : 125,
+            'angleStart3'       : 180,
+            'angleStart4'       : 0,
+            'randomness'        : 0,
+            'linesDraw'         : True,
+            'linesGradient'     : True,
+            'linesStrokeWidth'  : 10,
+            'linesStrokeColor'  : (0.8,),
+            'linesDash'         : (1, 5),
+            'circlesShadowDraw' : False,
+            'textDraw'          : True,
+        }
+        # self.map = FontPartsMapMaker()
+        self.setAttributes(mapAttrs)
+
+if __name__ == '__main__':
+
+    size(1000, 700)
+    translate(300, 410)
+    M = FontPartsMap()
+    M.draw()
 

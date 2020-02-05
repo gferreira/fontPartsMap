@@ -1,6 +1,6 @@
 import os
 import drawBot
-from fontPartsMap import FontPartsMap, FontPartsColorScheme
+from fontPartsMap import FontPartsColorScheme
 from fontTools.agl import UV2AGL
 from fontParts.world import OpenFont, RGlyph
 

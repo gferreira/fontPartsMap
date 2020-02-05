@@ -21,6 +21,7 @@ typeAttrs = {
         'font'      : False,
         'font lib'  : False,
         'info'      : False,
+        'groups'    : False, 
         'kerning'   : False,
         'features'  : False,
         'layer'     : True,
@@ -54,28 +55,8 @@ typeAttrs = {
 length = 180
 
 mapAttrs = {
-    'radius1'            : 55,
-    'radius2'            : 75,
-    'length1'            : length,
-    'length2'            : length,
-    'angle1'             : 50,
-    'angle2'             : -50,
-    'angle3'             : 50,
-    'angleStart0'        : 10,
-    'angleStart1'        : 66,
-    'angleStart2'        : 125,
-    'angleStart3'        : 189,
-    'angleStart4'        : -5,
-    'randomness'         : 0,
-    'linesDraw'          : True,
-    'linesStrokeWidth'   : 10,
-    'linesStrokeColor'   : (0.8,),
-    'linesGradient'      : True,
-    'linesDash'          : (1, 5),
-    'circlesShadowDraw'  : False,
     'textDraw'           : False,
     'dimColor'           : (0.8,),
-    # 'dimObjects'         : dimObjects,
 }
 
 f = OpenFont(ufoPath)
